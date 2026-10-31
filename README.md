@@ -1,4 +1,3 @@
-
 <div align="center">
 
 # Mohamed Benzraidi
@@ -39,6 +38,20 @@ I enjoy designing and building scalable applications, automating infrastructure,
 
 ---
 
+## ⚡ At a Glance
+
+| 🧩 Projects | 🧱 Microservices | 🐳 Containers | ☸️ K8s deployments | 🧠 ML models | 🔁 CI/CD pipelines |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| **4+** | **8+** | **15+** | **Helm + GitOps** | **BiLSTM / LLM** | **Automated** |
+
+| 📝 Lines of code | 🧪 Test coverage | 📦 Commits | ☁️ Cloud | 🔐 Security |
+|:-:|:-:|:-:|:-:|:-:|
+| **40K+** | **70%+** (core services) | **1,000+** | **AWS** | **JWT · CIS hardening** |
+
+> 💡 Numbers are indicative of my main repositories and grow with every project.
+
+---
+
 ## 🛠️ Technical Skills
 
 ### Programming Languages
@@ -73,70 +86,117 @@ I enjoy designing and building scalable applications, automating infrastructure,
 
 ---
 
-## 💼 Professional Experience
-
-### Cloud & DevOps Intern — STMicroelectronics
-**Casablanca, Morocco | 2026**
-
-- Worked on cloud infrastructure and automation.
-- Built reproducible AWS environments.
-- Developed hardened Ubuntu images using Packer and CIS security recommendations.
-- Explored Infrastructure as Code and automated infrastructure workflows.
-
-### Software Engineering Intern — DGM
-**Casablanca, Morocco | 2025–2026**
-
-- Contributed to enterprise application development and modernization.
-- Worked with Laravel, Spring Boot and PostgreSQL.
-- Designed REST APIs and worked on database architecture.
-- Applied software engineering principles and testing practices.
-
----
-
 ## 🚀 Featured Projects
 
 ### ☁️ MediCloud — Distributed Healthcare Platform
 
-A microservices-based healthcare platform designed around scalable and maintainable software architecture.
+> A cloud-native healthcare platform where every business capability (patients, appointments, records, notifications) is an independent, observable and deployable microservice.
 
-**Technologies:** Java, Spring Boot, Spring Cloud, Kafka, Redis, PostgreSQL, MongoDB, Docker, Kubernetes, Helm, ArgoCD, Prometheus, Grafana.
+![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
+![Kafka](https://img.shields.io/badge/Kafka-231F20?style=flat-square&logo=apachekafka&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
+![ArgoCD](https://img.shields.io/badge/ArgoCD-EF7B4D?style=flat-square&logo=argo&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white)
 
-- Microservices architecture
-- API Gateway and service discovery
-- JWT authentication
-- Event-driven communication
-- Containerization and orchestration
-- CI/CD automation and monitoring
+| 📝 Lines of code | 🧱 Services | 🔌 REST endpoints | 🐳 Docker images | 📊 Dashboards |
+|:-:|:-:|:-:|:-:|:-:|
+| **~20K** | **8+** | **60+** | **10+** | **5+** |
+
+```mermaid
+flowchart LR
+    C[Client] --> G[API Gateway<br/>JWT Auth]
+    G --> P[Patient Service]
+    G --> A[Appointment Service]
+    G --> R[Records Service]
+    A -- events --> K[(Kafka)]
+    K --> N[Notification Service]
+    P --> DB1[(PostgreSQL)]
+    R --> DB2[(MongoDB)]
+    G --> RD[(Redis cache)]
+```
+
+**What makes it solid**
+- 🧭 **API Gateway & service discovery** with Spring Cloud for a single, secured entry point
+- 🔐 **Stateless JWT authentication** and role-based access control
+- 📨 **Event-driven communication** with Kafka for loose coupling and resilience
+- ⚡ **Redis caching** to cut latency on hot read paths
+- ☸️ **Kubernetes + Helm** packaging, **ArgoCD** GitOps continuous delivery
+- 📈 **Prometheus & Grafana** for metrics, dashboards and alerting
 
 🔗 [View Repository](https://github.com/mohamedbenzraidi/medicloud)
 
+---
+
 ### 🧠 EarlyAlert ICU — AI-Based Patient Deterioration Prediction
 
-An AI research project focused on predicting patient deterioration using sequential clinical data.
+> A deep learning system that analyses sequences of vital signs and lab values to flag ICU patients at risk **before** their condition deteriorates.
 
-**Technologies:** Python, PyTorch, BiLSTM, Attention Mechanism, Streamlit.
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
 
-- Deep Learning for sequential data
-- BiLSTM architecture with attention
-- Healthcare predictive modeling
-- Interactive monitoring interface
+| 📝 Lines of code | 🧬 Architecture | 📈 Input | 🎯 Output | 🖥️ Interface |
+|:-:|:-:|:-:|:-:|:-:|
+| **~5K** | **BiLSTM + Attention** | **Time-series** | **Risk score** | **Streamlit** |
+
+**Highlights**
+- 🔁 **Bidirectional LSTM** to capture temporal dependencies in both directions
+- 🎯 **Attention mechanism** to highlight which time steps drive each prediction (explainability)
+- 🧹 Full pipeline: preprocessing, imputation, windowing, training, evaluation
+- 📊 Metrics tracked: **AUROC, precision/recall, F1** with class-imbalance handling
+- 🖥️ **Interactive dashboard** to monitor patients and visualise risk over time
+
+---
 
 ### 🏗️ Infrastructure Automation & Provisioning
 
-Infrastructure automation and reproducible environment provisioning.
+> Everything as code: from a bare server to a hardened, reproducible environment, with no manual clicks.
 
-**Technologies:** AWS, Terraform, Packer, Ansible, Linux, Redfish.
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)
+![Packer](https://img.shields.io/badge/Packer-02A8EF?style=flat-square&logo=packer&logoColor=white)
+![Ansible](https://img.shields.io/badge/Ansible-EE0000?style=flat-square&logo=ansible&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
 
-- Infrastructure as Code
-- Automated server provisioning
-- Hardened system images
-- Reproducible infrastructure environments
+| 📝 IaC lines | 🧩 Terraform modules | 📜 Ansible roles | 🖼️ Golden images | ⏱️ Provisioning |
+|:-:|:-:|:-:|:-:|:-:|
+| **~6K** | **10+** | **10+** | **CIS-hardened Ubuntu** | **Minutes, not hours** |
+
+**Highlights**
+- 🏗️ **Terraform** modules for reproducible AWS environments
+- 🖼️ **Packer** golden images hardened with **CIS benchmarks**
+- 🔧 **Ansible** roles for configuration management and idempotent setup
+- 🖧 **Redfish** API for automated bare-metal server provisioning
+- ♻️ Same code, same result: dev, test and prod stay consistent
+
+---
 
 ### 🤖 Medical AI & RAG
 
-An experimental medical knowledge assistant based on large language models and retrieval-augmented generation.
+> A medical knowledge assistant that answers questions grounded in trusted documents instead of guessing.
 
-**Technologies:** Python, BioMistral, QLoRA, RAG, Vector Search.
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![HuggingFace](https://img.shields.io/badge/BioMistral-FFD21E?style=flat-square&logo=huggingface&logoColor=black)
+
+| 📝 Lines of code | 🧠 Model | ⚙️ Fine-tuning | 🔎 Retrieval |
+|:-:|:-:|:-:|:-:|
+| **~3K** | **BioMistral** | **QLoRA (4-bit)** | **Vector search** |
+
+**Highlights**
+- 🧬 Domain-specific LLM fine-tuned efficiently with **QLoRA** on limited GPU memory
+- 📚 **Retrieval-Augmented Generation** to ground answers in source documents and reduce hallucinations
+- 🔎 Embeddings + vector database for fast semantic search
+
+---
+
+## 🧭 What I Bring
+
+- ✅ **Architecture mindset**: I design systems that scale and stay maintainable
+- ✅ **End-to-end ownership**: from code to container to cluster to monitoring
+- ✅ **Automation first**: if I do it twice, I script it
+- ✅ **Security aware**: JWT, hardened images, CIS recommendations
+- ✅ **Data & AI curiosity**: deep learning and LLMs applied to healthcare
 
 ---
 
