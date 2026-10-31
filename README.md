@@ -40,15 +40,12 @@ I enjoy designing and building scalable applications, automating infrastructure,
 
 ## ⚡ At a Glance
 
-| 🧩 Projects | 🧱 Microservices | 🐳 Containers | ☸️ K8s deployments | 🧠 ML models | 🔁 CI/CD pipelines |
-|:-:|:-:|:-:|:-:|:-:|:-:|
-| **4+** | **8+** | **15+** | **Helm + GitOps** | **BiLSTM / LLM** | **Automated** |
-
-| 📝 Lines of code | 🧪 Test coverage | 📦 Commits | ☁️ Cloud | 🔐 Security |
-|:-:|:-:|:-:|:-:|:-:|
-| **40K+** | **70%+** (core services) | **1,000+** | **AWS** | **JWT · CIS hardening** |
-
-> 💡 Numbers are indicative of my main repositories and grow with every project.
+| 🔐 Cloud IAM Zero Trust | 🏥 MediCloud |
+|:--|:--|
+| **3** AWS accounts federated through one IdP | **7** Spring Boot modules (4 business services) |
+| **6** Terraform modules + bootstrap | **1** event-driven flow with Kafka |
+| **4** organization-level guardrails (SCP) | **Redis** rate limiting + circuit breaker |
+| **11** documented test scenarios | **React** frontend served through the gateway |
 
 ---
 
@@ -88,224 +85,158 @@ I enjoy designing and building scalable applications, automating infrastructure,
 
 ## 🚀 Featured Projects
 
-### ☁️ MediCloud — Distributed Healthcare Platform
+### 🔐 Cloud IAM Zero Trust — Multi-Account AWS SSO Federation
 
-> A cloud-native healthcare platform where every business capability (patients, appointments, records, notifications) is an independent, observable and deployable microservice.
+> One identity provider, three AWS accounts: SAML single sign-on, mandatory MFA, least privilege, organization-wide guardrails, sensitive-event detection, and everything deployed as code.
 
-![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
-![Kafka](https://img.shields.io/badge/Kafka-231F20?style=flat-square&logo=apachekafka&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
-![ArgoCD](https://img.shields.io/badge/ArgoCD-EF7B4D?style=flat-square&logo=argo&logoColor=white)
-![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white)
+![Terraform](https://img.shields.io/badge/IaC-Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)
+![AWS](https://img.shields.io/badge/Cloud-AWS-FF9900?style=flat-square&logo=amazonaws&logoColor=white)
+![Keycloak](https://img.shields.io/badge/IdP-Keycloak-4D4D4D?style=flat-square)
+![GitHub Actions](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+![Status](https://img.shields.io/badge/status-in%20progress-yellow?style=flat-square)
 
-| 📝 Lines of code | 🧱 Services | 🔌 REST endpoints | 🐳 Docker images | 📊 Dashboards |
+| 🏢 AWS accounts | 🧩 Terraform modules | 🚫 SCP guardrails | 🧪 Test scenarios | 🗝️ Human access keys |
 |:-:|:-:|:-:|:-:|:-:|
-| **~20K** | **8+** | **60+** | **10+** | **5+** |
+| **3** (security, dev, prod) | **6** + bootstrap | **4** | **11** | **0** |
 
-```mermaid
-flowchart LR
-    C[Client] --> G[API Gateway<br/>JWT Auth]
-    G --> P[Patient Service]
-    G --> A[Appointment Service]
-    G --> R[Records Service]
-    A -- events --> K[(Kafka)]
-    K --> N[Notification Service]
-    P --> DB1[(PostgreSQL)]
-    R --> DB2[(MongoDB)]
-    G --> RD[(Redis cache)]
-```
-
-**What makes it solid**
-- 🧭 **API Gateway & service discovery** with Spring Cloud for a single, secured entry point
-- 🔐 **Stateless JWT authentication** and role-based access control
-- 📨 **Event-driven communication** with Kafka for loose coupling and resilience
-- ⚡ **Redis caching** to cut latency on hot read paths
-- ☸️ **Kubernetes + Helm** packaging, **ArgoCD** GitOps continuous delivery
-- 📈 **Prometheus & Grafana** for metrics, dashboards and alerting
-
-#### 🛡️ Zero Trust Security Design
-
-Healthcare data is sensitive, so MediCloud follows one rule: **never trust, always verify**. No request is trusted because of where it comes from. Every hop is authenticated, authorized and logged.
-
-| Zero Trust pillar | Mechanism | Status |
-|---|---|:-:|
-| Identity | JWT authentication, role-based access | ✅ In place |
-| Edge | API Gateway as single secured entry point | ✅ In place |
-| Delivery | GitOps with ArgoCD, Helm | ✅ In place |
-| Observability | Prometheus and Grafana | ✅ In place |
-| Short-lived tokens, MFA | OIDC identity provider | 🛠️ Roadmap |
-| Service-to-service trust | mTLS through a service mesh | 🛠️ Roadmap |
-| Network isolation | Default-deny Kubernetes NetworkPolicies | 🛠️ Roadmap |
-| Secrets | Vault with dynamic DB credentials | 🛠️ Roadmap |
-| Policy as code | OPA / Kyverno admission and authorization | 🛠️ Roadmap |
-| Supply chain | Trivy scan, SBOM, Cosign image signing | 🛠️ Roadmap |
-
-**1. Zero Trust architecture: every layer verifies**
+**Architecture**
 
 ```mermaid
 flowchart TB
-    U["👤 User / Client"] -->|HTTPS · TLS 1.3| EDGE
-    subgraph EDGE["🌐 Edge · the perimeter is never trusted"]
-        WAF["WAF + rate limiting"] --> GW["API Gateway<br/>JWT validation"]
+    U["👤 Users<br/>password + OTP"] --> KC["🔑 Keycloak IdP<br/>cloud-admins · developers · auditors"]
+    KC -->|SAML 2.0 signed assertion| IC["🪪 AWS IAM Identity Center<br/>permission sets"]
+    subgraph ORG["🏢 AWS Organizations · SCP guardrails"]
+        SEC["🛡️ security account<br/>org CloudTrail · Access Analyzer"]
+        DEV["🧪 dev account<br/>limited PowerUser"]
+        PROD["🚀 prod account<br/>ReadOnly · Admin 1 h"]
     end
-    IDP["🔑 Identity Provider<br/>OIDC · MFA"] -.->|short-lived tokens| GW
-    subgraph MESH["☸️ Kubernetes · mTLS between services · default-deny NetworkPolicies"]
-        P["Patient Service"]
-        A["Appointment Service"]
-        R["Records Service"]
-        K[("Kafka")]
-        N["Notification Service"]
-        A -->|mTLS| K
-        K -->|mTLS| N
-    end
-    GW --> P
-    GW --> A
-    GW --> R
-    subgraph DATA["🗄️ Data zone · encrypted at rest"]
-        PG[("PostgreSQL")]
-        MG[("MongoDB")]
-        RD[("Redis")]
-    end
-    P --> PG
-    R --> MG
-    GW --> RD
-    V["🔐 Vault<br/>secrets and dynamic DB credentials"] -.-> P
-    V -.-> R
-    POL["📜 Policy engine<br/>OPA / Kyverno"] -.-> MESH
-    OBS["📈 Prometheus · Grafana · audit logs"] -.-> MESH
+    IC --> SEC
+    IC --> DEV
+    IC --> PROD
+    SEC --> EB["🔔 EventBridge + SNS<br/>sensitive-event alerts"]
+    GH["⚙️ GitHub Actions<br/>OIDC, no stored keys"] --> TF["📦 Terraform plan<br/>Checkov · gitleaks"]
+    TF -.-> ORG
 ```
 
-**2. Request lifecycle: authenticate and authorize at every hop**
+**Authentication flow**
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor U as Doctor
-    participant IDP as Identity Provider
-    participant GW as API Gateway
-    participant OPA as Policy Engine
-    participant S as Records Service
-    participant V as Vault
-    participant DB as MongoDB
-    U->>IDP: Login + MFA
-    IDP-->>U: Short-lived JWT
-    U->>GW: Request + JWT
-    GW->>GW: Verify signature, expiry, audience
-    GW->>OPA: Can this role access this resource?
-    OPA-->>GW: Allow or Deny
-    GW->>S: Forward request over mTLS
-    S->>S: Re-validate token and scopes
-    S->>V: Ask for DB credentials
-    V-->>S: Dynamic credentials with short TTL
-    S->>DB: Query over TLS
-    DB-->>S: Data
-    S-->>GW: Response
-    GW-->>U: Response
-    Note over GW,DB: Every hop is authenticated, authorized and logged
+    actor U as User
+    participant IC as IAM Identity Center
+    participant KC as Keycloak
+    participant AWS as AWS account
+    participant CT as CloudTrail + EventBridge
+    U->>IC: Open the SSO portal
+    IC->>KC: Redirect for authentication
+    KC->>U: Ask password + OTP
+    U->>KC: Credentials + second factor
+    KC-->>IC: Signed SAML assertion
+    IC-->>U: Choose account and role
+    U->>AWS: Temporary session on the allowed role
+    AWS->>CT: Every action is logged
+    CT-->>U: Alert on root login, IAM user creation, policy change, break-glass use
 ```
 
-**3. Zero Trust delivery: only verified code reaches the cluster**
+**What makes it solid**
+- 🔑 **Single identity per person**, no local IAM users and no long-lived keys for humans (one documented break-glass exception)
+- 🛂 **Role-based access**: groups → permission sets → accounts, with a 1 h session for admins
+- 🎯 **Least privilege driven by real activity**: a broad starting policy replaced by one generated from IAM Access Analyzer
+- 🚧 **Organization guardrails (SCP)**: protect CloudTrail, forbid root usage, IAM users and access keys, restrict allowed regions
+- 🚨 **Detection**: EventBridge → SNS alerts on sensitive events
+- 🤖 **100% Infrastructure as Code**: Terraform with encrypted S3 state and native locking, CI with `fmt`, `validate`, Checkov, gitleaks and `plan`
+- 📊 **Measurable outcome**: Prowler (CIS AWS) score before and after
+
+---
+
+### 🏥 MediCloud — Cloud-Native Medical Platform
+
+> A microservices platform for patient and appointment management, built with Spring Boot 3 and Spring Cloud, where booking an appointment triggers an asynchronous notification through Kafka.
+
+![Java](https://img.shields.io/badge/Java-17-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-6DB33F?style=flat-square&logo=springboot&logoColor=white)
+![Kafka](https://img.shields.io/badge/Kafka-231F20?style=flat-square&logo=apachekafka&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
+
+| 🧱 Spring modules | 💼 Business services | 📨 Kafka flow | 🛡️ Resilience | 📘 API docs |
+|:-:|:-:|:-:|:-:|:-:|
+| **7** | **4** (auth, patient, appointment, notification) | **1** appointment → notification | **Rate limiting + circuit breaker** | **Swagger** |
+
+**Architecture**
 
 ```mermaid
-flowchart LR
-    DEV["👨‍💻 Developer<br/>signed commit"] --> T
-    subgraph CI["⚙️ CI pipeline"]
-        direction LR
-        T["Unit tests"] --> SAST["SAST + dependency scan"] --> B["Build image"] --> TR["Trivy scan"] --> SB["SBOM"] --> SG["Sign with Cosign"]
-    end
-    SG --> REG[("🐳 Private registry")]
-    REG --> GIT["📦 Helm values in Git"]
-    GIT --> ARGO["🔄 ArgoCD<br/>GitOps sync"]
-    ARGO --> ADM{"🛡️ Admission control<br/>Kyverno / OPA"}
-    ADM -->|signature valid, non-root, limits set| OK["✅ Pod deployed"]
-    ADM -->|policy violation| KO["❌ Rejected"]
+flowchart TB
+    FE["🖥️ React + Vite frontend"] --> GW["🚪 API Gateway :8080<br/>routing · rate limiting · circuit breaker"]
+    GW --> AU["🔐 Auth :8081<br/>register · login · refresh · JWT"]
+    GW --> PA["🧑‍⚕️ Patient :8082<br/>CRUD · Swagger"]
+    GW --> AP["📅 Appointment :8083<br/>CRUD · OpenFeign"]
+    AP -->|appointment-scheduled-topic| K[("Kafka")]
+    K --> NO["📧 Notification :8084<br/>email simulation"]
+    GW --> RD[("Redis")]
+    AU --> PG[("PostgreSQL")]
+    PA --> PG
+    AP --> PG
+    NO --> PG
+    EU["🧭 Eureka :8761<br/>service discovery"] -.-> GW
+    CS["⚙️ Config Server :8888"] -.-> GW
 ```
 
+**Event-driven flow**
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant GW as API Gateway
+    participant AP as Appointment Service
+    participant K as Kafka
+    participant NO as Notification Service
+    U->>GW: POST appointment
+    GW->>AP: Route request
+    AP->>AP: Save appointment
+    AP-)K: Publish appointment-scheduled event
+    AP-->>U: 201 Created
+    K-)NO: Consume event
+    NO->>NO: Build and send email
+    Note over AP,NO: The user never waits for the notification
+```
+
+**Engineering status**
+
+| Area | Status |
+|---|:-:|
+| Service discovery (Eureka), Auth with JWT, Appointment + Kafka producer | ✅ Done |
+| API Gateway with Redis rate limiting and circuit breaker | ✅ Done |
+| React frontend, Docker Compose, Kubernetes manifests (Deployments, Ingress, HPA) | ✅ Done |
+| Gateway routing alignment and JWT enforcement on Patient service | 🚧 In progress |
+| Helm charts, ArgoCD, Prometheus and Grafana | 🛠️ Roadmap |
+| Testcontainers and higher test coverage, real email/SMS provider | 🛠️ Roadmap |
+
 🔗 [View Repository](https://github.com/mohamedbenzraidi/medicloud)
-
----
-
-### 🧠 EarlyAlert ICU — AI-Based Patient Deterioration Prediction
-
-> A deep learning system that analyses sequences of vital signs and lab values to flag ICU patients at risk **before** their condition deteriorates.
-
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
-![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
-
-| 📝 Lines of code | 🧬 Architecture | 📈 Input | 🎯 Output | 🖥️ Interface |
-|:-:|:-:|:-:|:-:|:-:|
-| **~5K** | **BiLSTM + Attention** | **Time-series** | **Risk score** | **Streamlit** |
-
-**Highlights**
-- 🔁 **Bidirectional LSTM** to capture temporal dependencies in both directions
-- 🎯 **Attention mechanism** to highlight which time steps drive each prediction (explainability)
-- 🧹 Full pipeline: preprocessing, imputation, windowing, training, evaluation
-- 📊 Metrics tracked: **AUROC, precision/recall, F1** with class-imbalance handling
-- 🖥️ **Interactive dashboard** to monitor patients and visualise risk over time
-
----
-
-### 🏗️ Infrastructure Automation & Provisioning
-
-> Everything as code: from a bare server to a hardened, reproducible environment, with no manual clicks.
-
-![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white)
-![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)
-![Packer](https://img.shields.io/badge/Packer-02A8EF?style=flat-square&logo=packer&logoColor=white)
-![Ansible](https://img.shields.io/badge/Ansible-EE0000?style=flat-square&logo=ansible&logoColor=white)
-![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
-
-| 📝 IaC lines | 🧩 Terraform modules | 📜 Ansible roles | 🖼️ Golden images | ⏱️ Provisioning |
-|:-:|:-:|:-:|:-:|:-:|
-| **~6K** | **10+** | **10+** | **CIS-hardened Ubuntu** | **Minutes, not hours** |
-
-**Highlights**
-- 🏗️ **Terraform** modules for reproducible AWS environments
-- 🖼️ **Packer** golden images hardened with **CIS benchmarks**
-- 🔧 **Ansible** roles for configuration management and idempotent setup
-- 🖧 **Redfish** API for automated bare-metal server provisioning
-- ♻️ Same code, same result: dev, test and prod stay consistent
-
----
-
-### 🤖 Medical AI & RAG
-
-> A medical knowledge assistant that answers questions grounded in trusted documents instead of guessing.
-
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
-![HuggingFace](https://img.shields.io/badge/BioMistral-FFD21E?style=flat-square&logo=huggingface&logoColor=black)
-
-| 📝 Lines of code | 🧠 Model | ⚙️ Fine-tuning | 🔎 Retrieval |
-|:-:|:-:|:-:|:-:|
-| **~3K** | **BioMistral** | **QLoRA (4-bit)** | **Vector search** |
-
-**Highlights**
-- 🧬 Domain-specific LLM fine-tuned efficiently with **QLoRA** on limited GPU memory
-- 📚 **Retrieval-Augmented Generation** to ground answers in source documents and reduce hallucinations
-- 🔎 Embeddings + vector database for fast semantic search
 
 ---
 
 ## 🧭 What I Bring
 
 - ✅ **Architecture mindset**: I design systems that scale and stay maintainable
-- ✅ **End-to-end ownership**: from code to container to cluster to monitoring
+- ✅ **End-to-end ownership**: from code to container to cloud account
 - ✅ **Automation first**: if I do it twice, I script it
-- ✅ **Security aware**: JWT, hardened images, CIS recommendations
-- ✅ **Data & AI curiosity**: deep learning and LLMs applied to healthcare
+- ✅ **Security by design**: SAML SSO, MFA, least privilege, organization guardrails, JWT
+- ✅ **Honest engineering**: I document limits, trade-offs and what is still on the roadmap
 
 ---
 
-## 🎓 Education & Certifications
+## 🎓 Education
 
-### Education
 **École Nationale des Sciences Appliquées d'Al Hoceima (ENSAH)**
 
 Engineering Degree — Software Engineering  
 2022 – 2027 (Expected)
-
 
 ---
 
