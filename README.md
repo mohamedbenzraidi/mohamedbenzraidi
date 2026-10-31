@@ -124,6 +124,104 @@ flowchart LR
 - ☸️ **Kubernetes + Helm** packaging, **ArgoCD** GitOps continuous delivery
 - 📈 **Prometheus & Grafana** for metrics, dashboards and alerting
 
+#### 🛡️ Zero Trust Security Design
+
+Healthcare data is sensitive, so MediCloud follows one rule: **never trust, always verify**. No request is trusted because of where it comes from. Every hop is authenticated, authorized and logged.
+
+| Zero Trust pillar | Mechanism | Status |
+|---|---|:-:|
+| Identity | JWT authentication, role-based access | ✅ In place |
+| Edge | API Gateway as single secured entry point | ✅ In place |
+| Delivery | GitOps with ArgoCD, Helm | ✅ In place |
+| Observability | Prometheus and Grafana | ✅ In place |
+| Short-lived tokens, MFA | OIDC identity provider | 🛠️ Roadmap |
+| Service-to-service trust | mTLS through a service mesh | 🛠️ Roadmap |
+| Network isolation | Default-deny Kubernetes NetworkPolicies | 🛠️ Roadmap |
+| Secrets | Vault with dynamic DB credentials | 🛠️ Roadmap |
+| Policy as code | OPA / Kyverno admission and authorization | 🛠️ Roadmap |
+| Supply chain | Trivy scan, SBOM, Cosign image signing | 🛠️ Roadmap |
+
+**1. Zero Trust architecture: every layer verifies**
+
+```mermaid
+flowchart TB
+    U["👤 User / Client"] -->|HTTPS · TLS 1.3| EDGE
+    subgraph EDGE["🌐 Edge · the perimeter is never trusted"]
+        WAF["WAF + rate limiting"] --> GW["API Gateway<br/>JWT validation"]
+    end
+    IDP["🔑 Identity Provider<br/>OIDC · MFA"] -.->|short-lived tokens| GW
+    subgraph MESH["☸️ Kubernetes · mTLS between services · default-deny NetworkPolicies"]
+        P["Patient Service"]
+        A["Appointment Service"]
+        R["Records Service"]
+        K[("Kafka")]
+        N["Notification Service"]
+        A -->|mTLS| K
+        K -->|mTLS| N
+    end
+    GW --> P
+    GW --> A
+    GW --> R
+    subgraph DATA["🗄️ Data zone · encrypted at rest"]
+        PG[("PostgreSQL")]
+        MG[("MongoDB")]
+        RD[("Redis")]
+    end
+    P --> PG
+    R --> MG
+    GW --> RD
+    V["🔐 Vault<br/>secrets and dynamic DB credentials"] -.-> P
+    V -.-> R
+    POL["📜 Policy engine<br/>OPA / Kyverno"] -.-> MESH
+    OBS["📈 Prometheus · Grafana · audit logs"] -.-> MESH
+```
+
+**2. Request lifecycle: authenticate and authorize at every hop**
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Doctor
+    participant IDP as Identity Provider
+    participant GW as API Gateway
+    participant OPA as Policy Engine
+    participant S as Records Service
+    participant V as Vault
+    participant DB as MongoDB
+    U->>IDP: Login + MFA
+    IDP-->>U: Short-lived JWT
+    U->>GW: Request + JWT
+    GW->>GW: Verify signature, expiry, audience
+    GW->>OPA: Can this role access this resource?
+    OPA-->>GW: Allow or Deny
+    GW->>S: Forward request over mTLS
+    S->>S: Re-validate token and scopes
+    S->>V: Ask for DB credentials
+    V-->>S: Dynamic credentials with short TTL
+    S->>DB: Query over TLS
+    DB-->>S: Data
+    S-->>GW: Response
+    GW-->>U: Response
+    Note over GW,DB: Every hop is authenticated, authorized and logged
+```
+
+**3. Zero Trust delivery: only verified code reaches the cluster**
+
+```mermaid
+flowchart LR
+    DEV["👨‍💻 Developer<br/>signed commit"] --> T
+    subgraph CI["⚙️ CI pipeline"]
+        direction LR
+        T["Unit tests"] --> SAST["SAST + dependency scan"] --> B["Build image"] --> TR["Trivy scan"] --> SB["SBOM"] --> SG["Sign with Cosign"]
+    end
+    SG --> REG[("🐳 Private registry")]
+    REG --> GIT["📦 Helm values in Git"]
+    GIT --> ARGO["🔄 ArgoCD<br/>GitOps sync"]
+    ARGO --> ADM{"🛡️ Admission control<br/>Kyverno / OPA"}
+    ADM -->|signature valid, non-root, limits set| OK["✅ Pod deployed"]
+    ADM -->|policy violation| KO["❌ Rejected"]
+```
+
 🔗 [View Repository](https://github.com/mohamedbenzraidi/medicloud)
 
 ---
@@ -208,12 +306,6 @@ flowchart LR
 Engineering Degree — Software Engineering  
 2022 – 2027 (Expected)
 
-### Certifications
-
-- 🏅 Oracle Certified Professional — Java SE 11 Developer
-- 🏅 Networking Basics — Cisco Networking Academy
-- 🏅 TOEIC — English Proficiency
-- 🏅 TCF — French Proficiency
 
 ---
 
